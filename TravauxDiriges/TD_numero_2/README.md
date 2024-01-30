@@ -29,7 +29,7 @@ $$
 
 Calculons les premiers éléments de la suite $S(n)$ :
 $$
-\begin{align}
+\begin{align\*}
 S(1) &= 1\\
 S(2) &\approx 1.8\\
 S(3) &= 2.5\\
@@ -37,7 +37,7 @@ S(4) &\approx 3.1\\
 S(5) &\approx 3.6\\
 S(6) &\approx 4\\
 ...
-\end{align}
+\end{align\*}
 $$
 
 Pour ce jeu de données, il semble raisonnable d'utiliser 4 noeuds de calcul, pour aller déjà 3 fois plus vite. Mais il faudrait faire des tests empirirques pour voir ce qui convient le mieux, sans trop perturber le CPU.
@@ -54,7 +54,7 @@ $$
 
 On nous dis que $t_p$ est alors doublé : $t_p' = 2 \cdot t_p$.\
 D'où :
-
+$$
 \begin{align}
 S'(n, t_p') &= n + (1 − n) \cdot (1 - t_p')\\
 S'(n, t_p) &= n + (1 − n) \cdot (1 - 2t_p)\\
@@ -63,7 +63,7 @@ S'(n, t_p) &= n + (1 − n) \cdot (1 - 2t_p)\\
 &= 2 \cdot 4 - 1\\
 &= 7
 \end{align}
-
+$$
 
 On peut donc espérer une accélération maximale de 7.
 

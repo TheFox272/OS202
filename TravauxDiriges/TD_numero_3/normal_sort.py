@@ -12,13 +12,15 @@ argv = sys.argv
 if len(argv) > 1:
     dim = int(sys.argv[1])
 else:
-    dim = 100
-
+    dim = 40000000
 
 v = np.random.rand(dim)
-v_list = v.tolist()
 
-v_list.sort()
+# On trie
+start = time()
+v.sort()
+end = time()
+print(f"Temps du sort : {end - start} sec")
 
 global_end = time()
 print(f"Temps d'exécution totale : {global_end - global_start} sec")

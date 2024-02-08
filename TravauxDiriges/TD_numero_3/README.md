@@ -10,33 +10,33 @@ Implémenter l'algorithme "bucket sort" tel que décrit sur les deux dernières 
 - le tableau trié est rassemblé sur le process 0.
 
 
-Voici les résultats obtenus pour dim = 1 000 000 :
+Voici les résultats obtenus pour dim = 10 000 000 :
 
 ```
-$ mpiexec -np 1 python3 normal_sort.py 1000000
-Temps d'exécution totale : 0.32674336433410645 sec
+$ mpiexec -np 1 python3 normal_sort.py 10000000
+Temps d'exécution totale : 3.9714250564575195 sec
 ```
 
 Et pour la version parrallélisée :
 ```
-$ mpiexec -np 4 python3 bucket_sort.py 1000000
-Temps de création des données pour P1 : 0.00827336311340332 sec
-Temps de création des données pour P0 : 0.008250236511230469 sec
-Temps de création des données pour P2 : 0.008451461791992188 sec
-Temps de création des données pour P3 : 0.008450984954833984 sec
-Temps de calcul du max/min global : 0.0018761157989501953 sec
-Temps de constitution local des buckets pour P0 : 0.32459235191345215 sec
-Temps de constitution local des buckets pour P3 : 0.32845187187194824 sec
-Temps de constitution local des buckets pour P1 : 0.3289196491241455 sec
-Temps de constitution local des buckets pour P2 : 0.33954930305480957 sec
-Temps de réunion des buckets : 0.6362795829772949 sec
-Temps du sort pour le processeur 0 : 0.14658522605895996 sec
-Temps du sort pour le processeur 1 : 0.1471419334411621 sec
-Temps du sort pour le processeur 2 : 0.13745522499084473 sec
-Temps du sort pour le processeur 3 : 0.13959813117980957 sec
-Temps de regroupement des buckets sur P0 : 0.889728307723999 sec
-Temps d'exécution totale : 2.0078186988830566 sec
+$ mpiexec -np 4 python3 bucket_sort.py 10000000
+Temps de création des données pour P1 : 0.05756568908691406 sec
+Temps de création des données pour P2 : 0.05965852737426758 sec
+Temps de création des données pour P0 : 0.059648990631103516 sec
+Temps de création des données pour P3 : 0.05979156494140625 sec
+Temps de calcul du max/min global : 0.011668920516967773 sec
+Temps de constitution local des buckets pour P0 : 1.773460865020752 sec
+Temps de constitution local des buckets pour P1 : 1.7751903533935547 sec
+Temps de constitution local des buckets pour P3 : 1.7759759426116943 sec
+Temps de constitution local des buckets pour P2 : 1.8115863800048828 sec
+Temps de réunion des buckets : 6.782710075378418 sec
+Temps du sort pour le processeur 0 : 2.136425495147705 sec
+Temps du sort pour le processeur 1 : 2.082073450088501 sec
+Temps du sort pour le processeur 2 : 2.067537307739258 sec
+Temps du sort pour le processeur 3 : 2.1634538173675537 sec
+Temps de regroupement des buckets sur P0 : 8.780912637710571 sec
+Temps d'exécution totale : 19.545241355895996 sec
 ```
 
-On voit qu'on a bien gagné du temps sur le sort local (2 fois plus rapide), mais rien que le temps de constitution des buckets rend la parralélisation plus longue. Au final, le process a donc été beaucoup plus long.
+On voit qu'on a bien gagné du temps sur le sort local (2 fois plus rapide), mais le problème réside dans l'envoi et la réception des listes qui sont gigantesque. 
 

@@ -1,4 +1,3 @@
-
 import numpy as np
 import sys
 from time import time
@@ -21,6 +20,7 @@ else:
     dim = 100
 
 dim_local = dim // nbp
+dim = dim_local * nbp
 
 # On génère les données localement
 start = time()
@@ -67,17 +67,36 @@ if rank == 0:
     end = time()
     print(f"Temps de réunion des buckets : {end - start} sec")
 
+
 # On trie
 start = time()
+local_bucket = np.array(local_bucket, dtype=float)
 local_bucket.sort()
 end = time()
 print(f"Temps du sort pour le processeur {rank} : {end - start} sec")
 
+# # On regroupe sur P0 avec Gather (ne marche pas ...)
+# if rank == 0:
+#     v = np.empty(dim, dtype=float)
+# else:
+#     v = None
+
+# start = time()
+# globCom.Gather([local_bucket, MPI.FLOAT], [v, MPI.FLOAT], root=0)
+# end = time()
+
+# if rank == 0:
+#     print(f"Temps de regroupement des buckets sur P0 : {end - start} sec")
+#     global_end = time()
+#     print(f"Temps d'exécution totale : {global_end - global_start} sec"
+
 # On regroupe sur P0
 if rank == 0:
+    v = np.empty(dim, dtype=float)
     start = time()
-    for i in range(1, nbp):
-        local_bucket.extend(globCom.recv(source=i))
+    # for i in range(1, nbp):
+    #     local_bucket.extend(globCom.recv(source=i))
+    globCom.Gather([local_bucket, MPI.FLOAT], [v, MPI.FLOAT], root=0)
     end = time()
     print(f"Temps de regroupement des buckets sur P0 : {end - start} sec")
     
@@ -85,6 +104,8 @@ if rank == 0:
     print(f"Temps d'exécution totale : {global_end - global_start} sec")
     
 else:
-    globCom.send(local_bucket, dest=0)
+    v = None
+    globCom.Gather([local_bucket, MPI.FLOAT], [v, MPI.FLOAT], root=0)
+    # globCom.send(local_bucket, dest=0)
 
 

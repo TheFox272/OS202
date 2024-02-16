@@ -150,7 +150,7 @@ if __name__ == '__main__':
         "u" : ((200,200), [(101,101),(102,102),(103,102),(103,101),(104,103),(105,103),(105,102),(105,101),(105,105),(103,105),(102,105),(101,105),(101,104)]),
         "flat" : ((200,400), [(80,200),(81,200),(82,200),(83,200),(84,200),(85,200),(86,200),(87,200), (89,200),(90,200),(91,200),(92,200),(93,200),(97,200),(98,200),(99,200),(106,200),(107,200),(108,200),(109,200),(110,200),(111,200),(112,200),(114,200),(115,200),(116,200),(117,200),(118,200)])
     }
-    choice = 'glider'
+    choice = 'acorn'
     if len(sys.argv) > 1 :
         choice = sys.argv[1]
     resx = 800
@@ -177,5 +177,6 @@ if __name__ == '__main__':
         t3 = time.time()
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                print(f"Temps calcul prochaine generation : {t2-t1:2.2e} sec, temps affichage : {t3-t2:2.2e} sec, temps_total : {t3-t1:2.2e}");
                 pg.quit()
-        print(f"Temps calcul prochaine generation : {t2-t1:2.2e} secondes, temps affichage : {t3-t2:2.2e} secondes\r", end='');
+        print(f"Temps calcul prochaine generation : {t2-t1:2.2e} sec, temps affichage : {t3-t2:2.2e} sec, temps_total : {t3-t1:2.2e}\r", end='');

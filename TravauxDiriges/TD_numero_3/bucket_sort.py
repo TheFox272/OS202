@@ -60,6 +60,7 @@ bucket_indices[bucket_indices == nbp] -= 1  # Faire attention au cas de max_glob
 
 buckets = [v_local[bucket_indices == i] for i in range(nbp)]
 bucket_lengths = np.array([np.array([np.sum(bucket_indices == i)]) for i in range(nbp)], dtype=np.uint32)
+
 end = time()
 print(f"Temps de constitution local des buckets pour P{rank} : {end - start} sec")
 
@@ -109,27 +110,4 @@ if rank == 0:
     print(f"Temps de regroupement des buckets sur P0 : {end - start} sec")
     global_end = time()
     print(f"Temps d'exécution totale : {global_end - global_start} sec")
-
-# # On regroupe sur P0
-# if rank == 0:
-#     v = np.empty(dim, dtype=float)
-#     n = len(local_bucket)
-#     v[:n] = local_bucket
-#     start = time()
-#     for i in range(1, nbp):
-#         # local_bucket.extend(globCom.recv(source=i))
-#         n_local = globCom.recv(source=i)
-#         globCom.Recv([v[n:n+n_local], MPI.FLOAT], source=i)
-#         n += n_local
-#     end = time()
-#     print(f"Temps de regroupement des buckets sur P0 : {end - start} sec")
-#     print(v)
-#     global_end = time()
-#     print(f"Temps d'exécution totale : {global_end - global_start} sec")
-    
-# else:
-#     globCom.send(len(local_bucket), dest=0)
-#     globCom.Send([local_bucket, MPI.FLOAT], dest=0)
-#     # globCom.send(local_bucket, dest=0)
-
-
+    # print(v)

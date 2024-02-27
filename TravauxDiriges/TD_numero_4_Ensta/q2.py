@@ -6,6 +6,8 @@ from mpi4py import MPI
 import random as rd
 
 
+start = time()
+
 # On initialise MPI
 globCom = MPI.COMM_WORLD.Dup()
 nbp     = globCom.size
@@ -38,8 +40,8 @@ else:
 
 resx = 800
 resy = 800
-print(f"Pattern initial choisi : {choice}")
-print(f"resolution ecran : {resx,resy}")
+# print(f"Pattern initial choisi : {choice}")
+# print(f"resolution ecran : {resx,resy}")
 try:
     init_pattern = dico_patterns[choice]
 except KeyError:
@@ -115,6 +117,8 @@ for cycle in range(stop_at_cycle):
         print(f"Temps calcul prochaine generation P1: {times[3]-times[2]:2.2e} sec, Temps calcul prochaine generation P2: {times[5]-times[4]:2.2e} sec, temps affichage : {times[1]-times[0]:2.2e} sec, temps_total : {times[1]-times[2]:2.2e}\r", end='')
 
 if rank == 0:
+    end = time()
     print(f"Temps calcul prochaine generation P1: {times[3]-times[2]:2.2e} sec, Temps calcul prochaine generation P2: {times[5]-times[4]:2.2e} sec, temps affichage : {times[1]-times[0]:2.2e} sec, temps_total : {times[1]-times[2]:2.2e}")
+    print(f"Temps total d'exécution : {end - start} sec")
 pg.quit()
 

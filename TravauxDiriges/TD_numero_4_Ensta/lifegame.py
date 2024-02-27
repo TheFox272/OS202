@@ -133,6 +133,8 @@ if __name__ == '__main__':
     import time
     import sys
 
+    start = time.time()
+
     pg.init()
     dico_patterns = { # Dimension et pattern dans un tuple
         'blinker' : ((5,5),[(2,1),(2,2),(2,3)]),
@@ -178,5 +180,8 @@ if __name__ == '__main__':
         t3 = time.time()
         print(f"Temps calcul prochaine generation : {t2-t1:2.2e} sec, temps affichage : {t3-t2:2.2e} sec, temps_total : {t3-t1:2.2e}\r", end='');
 
+    end = time.time()
+
     print(f"Temps calcul prochaine generation : {t2-t1:2.2e} sec, temps affichage : {t3-t2:2.2e} sec, temps_total : {t3-t1:2.2e}");
+    print(f"Temps total d'exécution : {end - start} sec")
     pg.quit()

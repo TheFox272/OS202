@@ -168,15 +168,15 @@ if __name__ == '__main__':
     grid = Grille(*init_pattern)
     appli = App((resx, resy), grid)
 
-    while True:
+    stop_at_cycle = 10
+    for cycle in range(stop_at_cycle):
         #time.sleep(0.5) # A régler ou commenter pour vitesse maxi
         t1 = time.time()
         diff = grid.compute_next_iteration()
         t2 = time.time()
         appli.draw()
         t3 = time.time()
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                print(f"Temps calcul prochaine generation : {t2-t1:2.2e} sec, temps affichage : {t3-t2:2.2e} sec, temps_total : {t3-t1:2.2e}");
-                pg.quit()
         print(f"Temps calcul prochaine generation : {t2-t1:2.2e} sec, temps affichage : {t3-t2:2.2e} sec, temps_total : {t3-t1:2.2e}\r", end='');
+
+    print(f"Temps calcul prochaine generation : {t2-t1:2.2e} sec, temps affichage : {t3-t2:2.2e} sec, temps_total : {t3-t1:2.2e}");
+    pg.quit()

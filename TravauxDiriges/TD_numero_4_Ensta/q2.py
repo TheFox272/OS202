@@ -46,7 +46,11 @@ except KeyError:
     print("No such pattern. Available ones are:", dico_patterns.keys())
     exit(1)
 
-if rank == 0:
+size = list(init_pattern[0])
+points = list(init_pattern[1])
+x_step = size[0] // 2
+ghost_step = 1
+if rank == 0:   
     grid = Grille(*init_pattern)
     appli = App((resx, resy), grid)
     times = np.empty(2 + 2 * (nbp-1), dtype=np.double)
@@ -55,44 +59,62 @@ if rank == 0:
     globCom.Gather([np.array([0], dtype=np.uint32), MPI.UINT32_T], [recvcounts, MPI.UINT32_T], root=0)
     displacements = np.cumsum(recvcounts) - recvcounts
 else:
-    size = list(init_pattern[0])
-    points = list(init_pattern[1])
-    y_step = size[1] // 2
-    ghost_step = 1
+    new_points = []
     if rank == 1:
-        y_begin = 0 - ghost_step
-        y_end = y_step + ghost_step
+        for p in points:
+            if p[0] > x_step:
+                if p[0] == size[0]-1:
+                    new_points.append((0, p[1]))
+            else:
+                new_points.append((p[0]+1, p[1]))
     elif rank == 2:
-        y_begin = y_step - ghost_step
-        y_end = size[1] + ghost_step
-    for p in points:
-        if p[1] < y_begin or p[1] >= y_end:
-            del p
-    size[1] = y_end - y_begin
-    grid = Grille(tuple(size), points)
+        for p in points:
+            if p[0] < x_step-1:
+                if p[0] == 0:
+                    new_points.append((x_step + 1, p[1]))
+            else:
+                new_points.append((p[0] - x_step + 1, p[1]))
+    
+    size[0] = x_step + 2 * ghost_step
+    grid = Grille(tuple(size), new_points)
     times = np.empty(2, dtype=np.double)
-    globCom.Gather([np.array([size[1]-2*ghost_step], dtype=np.uint32), MPI.UINT32_T], None, root=0)
+    globCom.Gather([np.array([size[1]*(size[0]-2*ghost_step)], dtype=np.uint32), MPI.UINT32_T], None, root=0)
 
 
-while True:
-    #time.sleep(0.5) # A régler ou commenter pour vitesse maxi
+stop_at_cycle = 10
+for cycle in range(stop_at_cycle):
     if rank in [1, 2]:
         times[0] = time()
         diff = grid.compute_next_iteration()
         times[1] = time()
         globCom.Gather([times, MPI.DOUBLE], None, root=0)
-        local = grid.cells[:,ghost_step:-ghost_step].copy()
-        globCom.Gatherv([local, MPI.UINT8_T], None, root=0)
+
+        globCom.Gatherv([np.ascontiguousarray(grid.cells[ghost_step:-ghost_step, :]), MPI.UINT8_T], None, root=0)
+        
+        recv_buffer = np.empty(size[1], dtype=np.uint8)
+
+        globCom.Recv([recv_buffer, MPI.UINT8_T], source=0)
+        grid.cells[0,:] = recv_buffer
+        globCom.Recv([recv_buffer, MPI.UINT8_T], source=0)
+        grid.cells[-1,:] = recv_buffer
+
     elif rank == 0:
         globCom.Gather([times[:2], MPI.DOUBLE], [times, MPI.DOUBLE], root=0)
         local = np.empty(0, dtype=np.uint8)
         globCom.Gatherv([local, MPI.UINT8_T], [grid.cells, recvcounts, displacements, MPI.UINT8_T], root=0)
-        times[4] = time()
+
+        globCom.Send([np.ascontiguousarray(grid.cells[-ghost_step, :]), MPI.UINT8_T], dest=1)
+        globCom.Send([np.ascontiguousarray(grid.cells[x_step, :]), MPI.UINT8_T], dest=1)
+        
+        globCom.Send([np.ascontiguousarray(grid.cells[x_step-ghost_step, :]), MPI.UINT8_T], dest=2)
+        globCom.Send([np.ascontiguousarray(grid.cells[0, :]), MPI.UINT8_T], dest=2)
+
+        times[0] = time()
         appli.draw()
-        times[5] = time()
-        print(f"Temps calcul prochaine generation P1: {times[1]-times[0]:2.2e} sec, Temps calcul prochaine generation P1: {times[3]-times[2]:2.2e} sec,, temps affichage : {times[5]-times[4]:2.2e} sec, temps_total : {times[3]-times[0]:2.2e}\r", end='');
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            print(f"Temps calcul prochaine generation P1: {times[1]-times[0]:2.2e} sec, Temps calcul prochaine generation P1: {times[3]-times[2]:2.2e} sec,, temps affichage : {times[5]-times[4]:2.2e} sec, temps_total : {times[3]-times[0]:2.2e}");
-            pg.quit()
+        times[1] = time()
+        print(f"Temps calcul prochaine generation P1: {times[3]-times[2]:2.2e} sec, Temps calcul prochaine generation P2: {times[5]-times[4]:2.2e} sec, temps affichage : {times[1]-times[0]:2.2e} sec, temps_total : {times[1]-times[2]:2.2e}\r", end='')
+
+if rank == 0:
+    print(f"Temps calcul prochaine generation P1: {times[3]-times[2]:2.2e} sec, Temps calcul prochaine generation P2: {times[5]-times[4]:2.2e} sec, temps affichage : {times[1]-times[0]:2.2e} sec, temps_total : {times[1]-times[2]:2.2e}")
+pg.quit()
 

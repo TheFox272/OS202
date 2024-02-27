@@ -54,8 +54,8 @@ elif rank == 0:
     appli = App((resx, resy), grid)
     times = np.empty(4, dtype=np.double)
 
-while True:
-    #time.sleep(0.5) # A régler ou commenter pour vitesse maxi
+stop_at_cycle = 10
+for cycle in range(stop_at_cycle):
     if rank == 1:
         times[0] = time()
         diff = grid.compute_next_iteration()
@@ -68,9 +68,9 @@ while True:
         times[2] = time()
         appli.draw()
         times[3] = time()
-        print(f"Temps calcul prochaine generation : {times[1]-times[0]:2.2e} sec, temps affichage : {times[3]-times[2]:2.2e} sec, temps_total : {times[3]-times[0]:2.2e}\r", end='');
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            print(f"Temps calcul prochaine generation : {times[1]-times[0]:2.2e} sec, temps affichage : {times[3]-times[2]:2.2e} sec, temps_total : {times[3]-times[0]:2.2e}");
-            pg.quit()
+        print(f"Temps calcul prochaine generation : {times[1]-times[0]:2.2e} sec, temps affichage : {times[3]-times[2]:2.2e} sec, temps_total : {times[3]-times[0]:2.2e}\r", end='')
+
+if rank==0:
+    print(f"Temps calcul prochaine generation : {times[1]-times[0]:2.2e} sec, temps affichage : {times[3]-times[2]:2.2e} sec, temps_total : {times[3]-times[0]:2.2e}")
+pg.quit()
 
